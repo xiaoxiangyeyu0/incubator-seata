@@ -176,18 +176,18 @@ public class ConnectionProxyXA extends AbstractConnectionProxyXA implements Hold
                 commit();
             }
         } else {
-        	int flags;
-            if(this.xaBranchXid != null && currentAutoCommitStatus) {
-            	flags = XAResource.TMJOIN;
-            }else {
-            	if (xaActive) {
+            int flags;
+            if (this.xaBranchXid != null && currentAutoCommitStatus) {
+                flags = XAResource.TMJOIN;
+            } else {
+                if (xaActive) {
                     throw new SQLException("should NEVER happen: setAutoCommit from true to false while xa branch is active");
                 }
-            	if(JdbcConstants.ORACLE.equals(resource.getDbType())) {
-            		flags = SeataXAResource.ORATRANSLOOSE;
-            	}else {
-            		flags = XAResource.TMNOFLAGS;
-            	}
+                if (JdbcConstants.ORACLE.equals(resource.getDbType())) {
+                    flags = SeataXAResource.ORATRANSLOOSE;
+                } else {
+                    flags = XAResource.TMNOFLAGS;
+                }
                 // Start a XA branch
                 long branchId;
                 try {
@@ -233,12 +233,12 @@ public class ConnectionProxyXA extends AbstractConnectionProxyXA implements Hold
             throw new SQLException("should NOT commit on an inactive session", SQLSTATE_XA_NOT_END);
         }
         try {
-        	xaEnd(xaBranchXid, XAResource.TMSUCCESS);
-		} catch (XAException e) {
-			throw new SQLException("Failed to end(TMSUCCESS) xa branch on " + xid + "-" + xaBranchXid.getBranchId()
-            + " since " + e.getMessage(), e);
-		} finally {
-			xaActive = false;
+            xaEnd(xaBranchXid, XAResource.TMSUCCESS);
+        } catch (XAException e) {
+            throw new SQLException("Failed to end(TMSUCCESS) xa branch on " + xid + "-" + xaBranchXid.getBranchId()
+                    + " since " + e.getMessage(), e);
+        } finally {
+            xaActive = false;
         }
     }
 
@@ -308,9 +308,9 @@ public class ConnectionProxyXA extends AbstractConnectionProxyXA implements Hold
 
     @Override
     public synchronized void close() throws SQLException {
-    	try {
-			if(xaEnded) {
-				termination();
+        try {
+            if (xaEnded) {
+                termination();
                 long now = System.currentTimeMillis();
                 checkTimeout(now);
                 setPrepareTime(now);
@@ -322,24 +322,24 @@ public class ConnectionProxyXA extends AbstractConnectionProxyXA implements Hold
                     // Branch Report to TC: RDONLY
                     reportStatusToTC(BranchStatus.PhaseOne_RDONLY);
                 }
-			}
+            }
         } catch (SQLException sqle) {
             // Rollback immediately before the XA Branch Context is deleted.
             String xaBranchXid = this.xaBranchXid.toString();
             rollback();
             throw new SQLException("Branch " + xaBranchXid + " was rollbacked on committing since " + sqle.getMessage(), SQLSTATE_XA_NOT_END, sqle);
         } catch (XAException xe) {
-        	// Branch Report to TC: Failed
-        	reportStatusToTC(BranchStatus.PhaseOne_Failed);
+            // Branch Report to TC: Failed
+            reportStatusToTC(BranchStatus.PhaseOne_Failed);
             throw new SQLException(
-                "Failed to end(TMSUCCESS)/prepare xa branch on " + xid + "-" + xaBranchXid.getBranchId() + " since " + xe
-                    .getMessage(), xe);
+                    "Failed to end(TMSUCCESS)/prepare xa branch on " + xid + "-" + xaBranchXid.getBranchId() + " since " + xe
+                            .getMessage(), xe);
         } finally {
-        	rollBacked = false;
+            rollBacked = false;
             if (isHeld() && shouldBeHeld()) {
                 // if kept by a keeper, just hold the connection.
-            }else {
-            	cleanXABranchContext();
+            } else {
+                cleanXABranchContext();
                 originalConnection.close();
             }
         }
