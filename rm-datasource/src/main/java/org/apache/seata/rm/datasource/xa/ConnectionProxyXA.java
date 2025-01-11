@@ -233,7 +233,7 @@ public class ConnectionProxyXA extends AbstractConnectionProxyXA implements Hold
             throw new SQLException("should NOT commit on an inactive session", SQLSTATE_XA_NOT_END);
         }
         try {
-			xaResource.end(xaBranchXid, XAResource.TMSUCCESS);
+        	xaEnd(xaBranchXid, XAResource.TMSUCCESS);
 		} catch (XAException e) {
 			throw new SQLException("Failed to end(TMSUCCESS) xa branch on " + xid + "-" + xaBranchXid.getBranchId()
             + " since " + e.getMessage(), e);
@@ -309,7 +309,7 @@ public class ConnectionProxyXA extends AbstractConnectionProxyXA implements Hold
     @Override
     public synchronized void close() throws SQLException {
     	try {
-			if(isHeld()) {
+			if(xaEnded) {
 				termination();
                 long now = System.currentTimeMillis();
                 checkTimeout(now);
