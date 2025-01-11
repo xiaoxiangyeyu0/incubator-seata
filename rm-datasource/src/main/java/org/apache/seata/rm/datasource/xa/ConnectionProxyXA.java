@@ -270,7 +270,7 @@ public class ConnectionProxyXA extends AbstractConnectionProxyXA implements Hold
 
     private synchronized void start(int flags) throws XAException, SQLException {
         // 3. XA Start
-    	xaResource.start(this.xaBranchXid, flags);
+        xaResource.start(this.xaBranchXid, flags);
 
         try {
             termination();
