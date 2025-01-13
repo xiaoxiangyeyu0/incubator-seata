@@ -172,7 +172,7 @@ public class ConnectionProxyXA extends AbstractConnectionProxyXA implements Hold
             // According to JDBC spec:
             // If this method is called during a transaction and the
             // auto-commit mode is changed, the transaction is committed.
-            if (xaActive) {
+            if (xaActive && !xaEnded) {
                 commit();
             }
         } else {
@@ -233,12 +233,10 @@ public class ConnectionProxyXA extends AbstractConnectionProxyXA implements Hold
             throw new SQLException("should NOT commit on an inactive session", SQLSTATE_XA_NOT_END);
         }
         try {
-            xaEnd(xaBranchXid, XAResource.TMSUCCESS);
+            end(XAResource.TMSUCCESS);
         } catch (XAException e) {
             throw new SQLException("Failed to end(TMSUCCESS) xa branch on " + xid + "-" + xaBranchXid.getBranchId()
                     + " since " + e.getMessage(), e);
-        } finally {
-            xaActive = false;
         }
     }
 
@@ -310,7 +308,6 @@ public class ConnectionProxyXA extends AbstractConnectionProxyXA implements Hold
     public synchronized void close() throws SQLException {
         try {
             if (xaEnded) {
-                termination();
                 long now = System.currentTimeMillis();
                 checkTimeout(now);
                 setPrepareTime(now);
