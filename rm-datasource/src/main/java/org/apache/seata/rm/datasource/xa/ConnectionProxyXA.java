@@ -320,11 +320,6 @@ public class ConnectionProxyXA extends AbstractConnectionProxyXA implements Hold
                     reportStatusToTC(BranchStatus.PhaseOne_RDONLY);
                 }
             }
-        } catch (SQLException sqle) {
-            // Rollback immediately before the XA Branch Context is deleted.
-            String xaBranchXid = this.xaBranchXid.toString();
-            rollback();
-            throw new SQLException("Branch " + xaBranchXid + " was rollbacked on committing since " + sqle.getMessage(), SQLSTATE_XA_NOT_END, sqle);
         } catch (XAException xe) {
             // Branch Report to TC: Failed
             reportStatusToTC(BranchStatus.PhaseOne_Failed);
