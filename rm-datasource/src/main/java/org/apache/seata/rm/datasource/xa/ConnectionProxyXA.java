@@ -117,6 +117,10 @@ public class ConnectionProxyXA extends AbstractConnectionProxyXA implements Hold
         if (!xaEnded) {
             xaResource.end(xaXid, flags);
             xaEnded = true;
+        } else {
+            if (flags == XAResource.TMSUCCESS) {
+                xaResource.end(xaXid, flags);
+            }
         }
     }
 
@@ -319,6 +323,7 @@ public class ConnectionProxyXA extends AbstractConnectionProxyXA implements Hold
                     // Branch Report to TC: RDONLY
                     reportStatusToTC(BranchStatus.PhaseOne_RDONLY);
                 }
+                xaEnded = false;
             }
         } catch (XAException xe) {
             // Branch Report to TC: Failed
