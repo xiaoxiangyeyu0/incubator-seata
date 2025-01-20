@@ -115,13 +115,11 @@ public class ConnectionProxyXA extends AbstractConnectionProxyXA implements Hold
 
     private void xaEnd(XAXid xaXid, int flags) throws XAException {
         if (!xaEnded) {
-            xaResource.end(xaXid, flags);
             xaEnded = true;
-        } else {
-            if (flags == XAResource.TMSUCCESS) {
-                xaResource.end(xaXid, flags);
-            }
         }
+        if (xaActive) {
+			xaResource.end(xaXid, flags);
+		}
     }
 
     /**
