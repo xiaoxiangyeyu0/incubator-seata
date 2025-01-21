@@ -84,7 +84,7 @@ public class ConnectionProxyXATest {
 
         connectionProxyXA.commit();
 
-        Mockito.verify(xaResource).end(any(Xid.class), any(Integer.class));
+        Mockito.verify(xaResource, times(0)).end(any(Xid.class), any(Integer.class));
         Mockito.verify(xaResource, times(0)).prepare(any(Xid.class));
     }
 
